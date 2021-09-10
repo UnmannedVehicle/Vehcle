@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# 该例程将订阅/turtle1/pose话题，消息类型turtlesim::Pose
+
+import rospy
+import roslib
+import actionlib
+from actionlib_msgs.msg import *
+from geometry_msgs.msg import PoseStamped
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal 
+x = 0
+y = 0 
+flag = 0
+def poseCallback(msg):
+    move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction) 
+    global x,y,flag
+    #goal_pub = rospy.Publisher('move_base/goal', MoveBaseActionGoal, queue_size=10)
+    
+    goal = MoveBaseGoal()          
+    goal.target_pose.header.frame_id = 'map'  
+    goal.target_pose.header.stamp = rospy.Time.now() 
+    goal.target_pose.pose.position.x = msg.pose.position.x
+    goal.target_pose.pose.position.y = msg.pose.position.y
+    goal.target_pose.pose.orientation.w = msg.pose.orientation.w
+    goal.target_pose.pose.orientation.x = msg.pose.orientation.x
+    goal.target_pose.pose.orientation.y = msg.pose.orientation.y
+    goal.target_pose.pose.orientation.z = msg.pose.orientation.z
+    #print(x)
+    
+    if x != msg.pose.position.x or y != msg.pose.position.y:
+        flag = 0
+        rospy.loginfo("Turtle pose: x:%0.6f, y:%0.6f", msg.pose.position.x, msg.pose.position.y)
+        move_base.send_goal(goal)
+    if flag < 50:
+        flag = flag +1
+        move_base.send_goal(goal)
+        
+        
+    x = msg.pose.position.x
+    y = msg.pose.position.y
+   
+
+
+
+
+def pose_subscriber():
+	# ROS节点初始化
+    rospy.init_node('pose_subscriber', anonymous=True)
+
+	# 创建一个Subscriber，订阅名为/turtle1/pose的topic，注册回调函数poseCallback
+    rospy.Subscriber("goal", PoseStamped, poseCallback)
+
+	# 循环等待回调函数
+    rospy.spin()
+
+if __name__ == '__main__':
+    pose_subscriber()
+
+

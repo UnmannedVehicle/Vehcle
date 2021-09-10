@@ -1,0 +1,7 @@
+<launch>
+
+<node name="goal" pkg="aimibot" type="goal" output="screen"/>
+
+
+</launch>
+

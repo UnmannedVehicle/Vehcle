@@ -1,0 +1,39 @@
+<launch>
+
+  <!-- Map server -->
+  <arg name="map_file" default="/home/aimibot/map/map2.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
+
+  <!-- Move base -->
+  <arg name="custom_param_file" default="$(find aimibot)/param/aimibot_costmap_params.yaml"/>
+  <include file="$(find aimibot)/launch/includes/move_base.launch.xml">
+    <arg name="custom_param_file" value="$(arg custom_param_file)"/>
+  </include>
+<node name="rviz" pkg="rviz" type="rviz" args="-d $(find aimibot)/rviz/navigation.rviz"/>
+
+
+<node pkg="tf" type="static_transform_publisher" name="base_to_laser" args="0.0 0.0 0.0 0.0 0.0 0.0 map odom 100"/>
+
+  <arg
+    name="model" />
+  <arg
+    name="gui"
+    default="False" />
+  <param
+    name="robot_description"
+    textfile="$(find aimibot)/urdf/aimibot.urdf" />
+  <param
+    name="use_gui"
+    value="$(arg gui)" />
+  <node
+    name="joint_state_publisher"
+    pkg="joint_state_publisher"
+    type="joint_state_publisher" />
+  <node
+    name="robot_state_publisher"
+    pkg="robot_state_publisher"
+    type="robot_state_publisher" />
+    
+    <node name="goal" pkg="aimibot" type="goal" output="screen"/>
+</launch>
+
